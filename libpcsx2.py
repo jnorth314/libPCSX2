@@ -50,7 +50,7 @@ class PCSX2:
             NameAddress = IMAGE_DOS_HEADER + self._read(LPCVOID(AddressOfNames + (i << 2)), 4)
             FunctionAddress = IMAGE_DOS_HEADER + self._read(LPCVOID(AddressOfFunctions + (i << 2)), 4)
 
-            if self._read(LPCVOID(NameAddress), 5) == 0x6D656D4545: # "memEE"
+            if self._read(LPCVOID(NameAddress), 5).to_bytes(5)[::-1] == b"EEmem":
                 return self._read(LPCVOID(FunctionAddress), 8)
 
         raise ValueError("Unable to find PCSX2's EEmem")
