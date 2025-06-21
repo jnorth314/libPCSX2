@@ -1,6 +1,7 @@
 from ctypes import byref, sizeof, windll
 from ctypes.wintypes import DWORD, HANDLE, HMODULE, HWND, LPVOID, LPCVOID, LPDWORD
 from functools import cached_property
+import struct
 
 import win32con
 
@@ -90,3 +91,8 @@ class PCSX2:
         """Read an unsigned WORD from EEmem"""
 
         return self._read(LPCVOID(self._eemem + address), 4)
+
+    def read_f32(self, address: int) -> int:
+        """Read a single precision floating point number from EEmem"""
+
+        return struct.unpack("f", self._read(LPCVOID(self._eemem + address), 4).to_bytes(4, byteorder="little"))[0]
