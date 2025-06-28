@@ -1,4 +1,4 @@
-from ctypes import byref, sizeof, windll
+from ctypes import byref, c_uint8, c_uint16, c_uint32, sizeof, windll
 from ctypes.wintypes import DWORD, HANDLE, HMODULE, HWND, LPVOID, LPCVOID, LPDWORD
 from functools import cached_property
 import struct
@@ -72,10 +72,10 @@ class PCSX2:
 
         return buffer & ((1 << nSize*8) - 1)
 
-    def _write(self, lpBaseAddress: LPVOID, lpBuffer: LPCVOID) -> None:
+    def _write(self, lpBaseAddress: LPVOID, packet: c_uint8 | c_uint16 | c_uint32) -> None:
         """Write to process memory"""
 
-        windll.kernel32.WriteProcessMemory(self._hprocess, lpBaseAddress, byref(lpBuffer), sizeof(lpBuffer), None)
+        windll.kernel32.WriteProcessMemory(self._hprocess, lpBaseAddress, byref(packet), sizeof(packet), None)
 
     def read_u8(self, address: int) -> int:
         """Read an unsigned BYTE from EEmem"""
@@ -96,3 +96,18 @@ class PCSX2:
         """Read a single precision floating point number from EEmem"""
 
         return struct.unpack("f", self._read(LPCVOID(self._eemem + address), 4).to_bytes(4, byteorder="little"))[0]
+
+    def write_u8(self, address: int, packet: int) -> None:
+        """Write an unsigned BYTE to EEmem"""
+
+        self._write(LPVOID(self._eemem + address), c_uint8(packet))
+
+    def write_u16(self, address: int, packet: int) -> None:
+        """Write an unsigned HALF-WORD to EEmem"""
+
+        self._write(LPVOID(self._eemem + address), c_uint16(packet))
+
+    def write_u32(self, address: int, packet: int) -> None:
+        """Write an unsigned WORD to EEmem"""
+
+        self._write(LPVOID(self._eemem + address), c_uint32(packet))
