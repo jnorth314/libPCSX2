@@ -77,6 +77,12 @@ class PCSX2:
 
         windll.kernel32.WriteProcessMemory(self._hprocess, lpBaseAddress, byref(packet), sizeof(packet), None)
 
+    def _press_key(self, key: int) -> None:
+        """Send a key press to the window"""
+
+        windll.user32.SendMessageW(self._hwnd, win32con.WM_KEYDOWN, key, 0)
+        windll.user32.SendMessageW(self._hwnd, win32con.WM_KEYUP, key, 0)
+
     def read_u8(self, address: int) -> int:
         """Read an unsigned BYTE from EEmem"""
 
